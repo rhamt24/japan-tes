@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tes Kosakata Jepang</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@600;800&family=Zen+Kaku+Gothic+New:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F1F4F2; --ink:#1B2A2F; --muted:#5B6B70; --line:#CBD5D2;
+  --ai:#2F4C9A; --ok:#2E7D5B; --ng:#B23A48; --card:#FFFFFF;
+  --serif:"Shippori Mincho","Hiragino Mincho ProN","Yu Mincho",serif;
+  --sans:"Zen Kaku Gothic New","Hiragino Sans","Yu Gothic",system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.6;
+  min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:24px 16px 40px}
+main{width:100%;max-width:520px}
+h1{font-family:var(--serif);font-size:1.6rem;margin:8px 0 4px}
+p.lead{color:var(--muted);margin:0 0 24px}
+fieldset{border:0;padding:0;margin:0 0 20px}
+legend{font-weight:700;margin-bottom:8px}
+.seg{display:flex;gap:8px;flex-wrap:wrap}
+.seg label{flex:1 1 0;min-width:110px}
+.seg input{position:absolute;opacity:0}
+.seg span{display:block;text-align:center;padding:10px 12px;border:1.5px solid var(--line);
+  border-radius:10px;background:var(--card);cursor:pointer}
+.seg input:checked+span{border-color:var(--ai);background:var(--ai);color:#fff}
+.seg input:focus-visible+span{outline:3px solid #9DB0E6;outline-offset:2px}
+button{font:inherit;cursor:pointer}
+.primary{width:100%;padding:14px;border:0;border-radius:10px;background:var(--ai);color:#fff;font-weight:700}
+.primary:focus-visible,.opt:focus-visible{outline:3px solid #9DB0E6;outline-offset:2px}
+.bar{height:6px;background:var(--line);border-radius:3px;overflow:hidden;margin-bottom:6px}
+.bar i{display:block;height:100%;background:var(--ai);width:0;transition:width .25s}
+.meta{display:flex;justify-content:space-between;color:var(--muted);font-size:.9rem;margin-bottom:20px}
+.kanji{font-family:var(--serif);font-weight:800;font-size:clamp(3.2rem,18vw,5.5rem);text-align:center;
+  line-height:1.15;margin:12px 0 4px;word-break:keep-all}
+.prompt{text-align:center;color:var(--muted);margin:0 0 20px}
+.opts{display:grid;gap:10px}
+.opt{width:100%;text-align:left;padding:14px 16px;border:1.5px solid var(--line);border-radius:10px;
+  background:var(--card);color:var(--ink)}
+.opt.ok{border-color:var(--ok);background:#E3F2EA}
+.opt.ng{border-color:var(--ng);background:#F8E4E7}
+.opt[disabled]{cursor:default}
+.fb{min-height:1.6em;margin:14px 0 10px;font-weight:700}
+.fb.ok{color:var(--ok)} .fb.ng{color:var(--ng)}
+.score{font-family:var(--serif);font-weight:800;font-size:4rem;text-align:center;margin:8px 0 0;line-height:1}
+.verdict{text-align:center;color:var(--muted);margin:6px 0 24px}
+.rev{list-style:none;margin:0 0 24px;padding:0;border-top:1px solid var(--line)}
+.rev li{padding:12px 0;border-bottom:1px solid var(--line);display:grid;grid-template-columns:auto 1fr;gap:4px 14px}
+.rev .k{font-family:var(--serif);font-weight:800;font-size:1.5rem;grid-row:span 2}
+.rev .a{color:var(--ng)} .rev .a.ok{color:var(--ok)}
+.rev .c{color:var(--muted);font-size:.92rem}
+footer{margin-top:32px;color:var(--muted);font-size:.8rem;max-width:520px;text-align:center}
+footer a{color:var(--ai)}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<main>
+  <section id="start">
+    <h1>Tes Kosakata Jepang</h1>
+    <p class="lead">Jawab, langsung tahu benar atau salah. Nilai akhir muncul begitu soal terakhir selesai.</p>
+    <fieldset>
+      <legend>Jenis soal</legend>
+      <div class="seg">
+        <label><input type="radio" name="mode" value="arti" checked><span>Arti kata</span></label>
+        <label><input type="radio" name="mode" value="baca"><span>Cara baca</span></label>
+      </div>
+    </fieldset>
+    <fieldset>
+      <legend>Jumlah soal</legend>
+      <div class="seg">
+        <label><input type="radio" name="total" value="10" checked><span>10</span></label>
+        <label><input type="radio" name="total" value="20"><span>20</span></label>
+        <label><input type="radio" name="total" value="30"><span>30</span></label>
+      </div>
+    </fieldset>
+    <button class="primary" id="go" disabled>Memuat kosakata…</button>
+  </section>
+
+  <section id="quiz" hidden>
+    <div class="bar"><i id="prog"></i></div>
+    <div class="meta"><span id="num"></span><span id="sc"></span></div>
+    <div class="kanji" id="kanji" lang="ja"></div>
+    <p class="prompt" id="prompt"></p>
+    <div class="opts" id="opts"></div>
+    <div class="fb" id="fb" role="status" aria-live="polite"></div>
+    <button class="primary" id="next" hidden>Lanjut</button>
+  </section>
+
+  <section id="result" hidden>
+    <h1>Hasil tes</h1>
+    <div class="score" id="rs"></div>
+    <p class="verdict" id="rv"></p>
+    <ul class="rev" id="rev"></ul>
+    <button class="primary" id="again">Ulangi tes</button>
+  </section>
+</main>
+<footer>
+  Data kosakata dari <a href="https://www.edrdg.org/jmdict/j_jmdict.html">JMdict</a> © Electronic Dictionary Research and Development Group, dipakai di bawah lisensi
+  <a href="https://www.edrdg.org/edrdg/licence.html">EDRDG</a> (CC BY-SA 4.0).
+</footer>
+
+<script>
+const $ = s => document.querySelector(s);
+let WORDS = [], Q = [], idx = 0, score = 0, log = [], mode = "arti", total = 10;
+
+const shuffle = a => { a = [...a]; for (let n = a.length - 1; n > 0; n--) { const j = Math.floor(Math.random() * (n + 1)); [a[n], a[j]] = [a[j], a[n]]; } return a; };
+const show = id => ["start", "quiz", "result"].forEach(s => $("#" + s).hidden = s !== id);
+
+fetch("words.json").then(r => r.json()).then(d => {
+  WORDS = d; $("#go").disabled = false; $("#go").textContent = "Mulai tes";
+}).catch(() => { $("#go").textContent = "Gagal memuat words.json"; });
+
+function build() {
+  const f = mode === "arti" ? "m" : "r";
+  Q = shuffle(WORDS).slice(0, total).map(w => {
+    const uniq = new Set([w[f]]);
+    const pick = list => { for (const x of list) { if (uniq.size >= 4) break; uniq.add(x[f]); } };
+    pick(shuffle(WORDS.filter(x => x.p === w.p)));
+    pick(shuffle(WORDS));
+    return { w, answer: w[f], options: shuffle([...uniq]) };
+  });
+}
+
+function render() {
+  const q = Q[idx];
+  $("#num").textContent = `Soal ${idx + 1} dari ${Q.length}`;
+  $("#sc").textContent = `Benar: ${score}`;
+  $("#prog").style.width = (idx / Q.length * 100) + "%";
+  $("#kanji").textContent = q.w.k;
+  $("#prompt").textContent = mode === "arti" ? "Apa arti kata ini?" : "Bagaimana cara membacanya?";
+  $("#fb").textContent = ""; $("#fb").className = "fb";
+  $("#next").hidden = true;
+  const box = $("#opts"); box.innerHTML = "";
+  q.options.forEach(o => {
+    const b = document.createElement("button");
+    b.className = "opt"; b.type = "button"; b.textContent = o;
+    if (mode === "baca") b.lang = "ja";
+    b.onclick = () => answer(b, o);
+    box.appendChild(b);
+  });
+}
+
+function answer(btn, chosen) {
+  const q = Q[idx], right = chosen === q.answer;
+  document.querySelectorAll(".opt").forEach(b => {
+    b.disabled = true;
+    if (b.textContent === q.answer) b.classList.add("ok");
+  });
+  if (!right) btn.classList.add("ng");
+  if (right) score++;
+  log.push({ k: q.w.k, r: q.w.r, m: q.w.m, chosen, right, answer: q.answer });
+  $("#sc").textContent = `Benar: ${score}`;
+  $("#fb").textContent = right ? "Benar" : `Salah. Jawaban yang benar: ${q.answer}`;
+  $("#fb").className = "fb " + (right ? "ok" : "ng");
+  const last = idx === Q.length - 1;
+  $("#next").textContent = last ? "Lihat nilai" : "Lanjut";
+  $("#next").hidden = false; $("#next").focus();
+}
+
+function finish() {
+  const pct = Math.round(score / Q.length * 100);
+  $("#rs").textContent = `${score}/${Q.length}`;
+  $("#rv").textContent = `${pct}% benar. ` + (pct >= 80 ? "Bagus sekali." : pct >= 60 ? "Cukup baik, terus latihan." : "Pelajari lagi kata yang salah di bawah.");
+  $("#rev").innerHTML = log.map(l => `
+    <li><span class="k" lang="ja">${l.k}</span>
+      <span class="a ${l.right ? "ok" : ""}">${l.right ? "Benar" : "Jawabanmu: " + l.chosen}</span>
+      <span class="c"><span lang="ja">${l.r}</span> · ${l.m}</span></li>`).join("");
+  show("result");
+}
+
+$("#go").onclick = () => {
+  mode = document.querySelector('input[name="mode"]:checked').value;
+  total = +document.querySelector('input[name="total"]:checked').value;
+  total = Math.min(total, WORDS.length);
+  build(); idx = 0; score = 0; log = []; show("quiz"); render();
+};
+$("#next").onclick = () => { idx++; idx < Q.length ? render() : finish(); };
+$("#again").onclick = () => show("start");
+</script>
+</body>
+</html>
