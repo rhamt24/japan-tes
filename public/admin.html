@@ -1,0 +1,19 @@
+<!DOCTYPE html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex"><title>Admin soal</title>
+<style>body{font:16px/1.6 system-ui,sans-serif;background:#F1F4F2;color:#1B2A2F;margin:0;padding:20px 16px;display:flex;justify-content:center}main{width:100%;max-width:520px}
+label{display:block;margin:12px 0 4px;font-weight:700}input,select,button{font:inherit;width:100%;padding:12px;border:1.5px solid #CBD5D2;border-radius:10px;background:#fff}
+button{background:#2F4C9A;color:#fff;border:0;font-weight:700;margin-top:16px}button:disabled{opacity:.5}pre{background:#fff;border-radius:10px;padding:12px;white-space:pre-wrap;min-height:90px}</style></head>
+<body><main><h1>Admin: buat soal</h1>
+<label for="pw">Password admin</label><input id="pw" type="password" autocomplete="off">
+<label for="sec">Bagian</label><select id="sec"><option value="kosakata">Huruf dan Kosakata</option><option value="percakapan">Percakapan dan Ungkapan</option><option value="bacaan">Pemahaman Bacaan</option></select>
+<label for="n">Soal per batch</label><select id="n"><option>3</option><option selected>5</option><option>8</option></select>
+<label for="bt">Jumlah batch</label><select id="bt"><option>1</option><option>2</option><option>3</option><option>5</option></select>
+<button id="go">Buat soal</button><pre id="log">Siap.</pre></main>
+<script>
+const $=s=>document.querySelector(s),log=t=>{$("#log").textContent+="\n"+t};
+async function call(b){const r=await fetch("/api/generate",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify({password:$("#pw").value,section:$("#sec").value,...b})});
+ const t=await r.text();let d;try{d=JSON.parse(t)}catch{throw new Error(t.slice(0,200))}if(!r.ok)throw new Error(d.error);return d}
+$("#go").onclick=async()=>{$("#go").disabled=true;$("#log").textContent="Mulai...";
+ try{for(let k=1;k<=+$("#bt").value;k++){log(`Batch ${k}: membuat soal...`);const g=await call({step:"gen",count:+$("#n").value});
+  log(`Batch ${k}: ${g.items.length} soal dibuat, memverifikasi dan menyimpan...`);const s=await call({step:"save",items:g.items});
+  log(`Batch ${k} selesai: ${s.verified} verified, ${s.draft} draft`)}log("Selesai.")}catch(e){log("Error: "+e.message)}$("#go").disabled=false};
+</script></body></html>
