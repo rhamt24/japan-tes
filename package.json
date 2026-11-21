@@ -1,9 +1,8 @@
 {
-  "name": "tes-jepang",
-  "version": "1.0.0",
+  "name": "simulasi-jft",
+  "version": "2.0.0",
   "private": true,
   "type": "module",
-  "scripts": {
-    "build:data": "node scripts/build-data.mjs"
-  }
+  "engines": { "node": ">=20" },
+  "scripts": { "generate": "node --env-file=.env scripts/generate.mjs" }
 }
