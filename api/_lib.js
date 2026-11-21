@@ -1,8 +1,10 @@
-const U = process.env.SUPABASE_URL, K = process.env.SUPABASE_SERVICE_KEY;
+const U = (process.env.SUPABASE_URL || "").trim().replace(/\/rest\/v1\/?$/, "").replace(/\/+$/, "");
+const K = (process.env.SUPABASE_SERVICE_KEY || "").trim();
 export const db = async (path, init = {}) => {
   const r = await fetch(`${U}/rest/v1/${path}`, { ...init, headers: { apikey: K, Authorization: `Bearer ${K}`, "content-type": "application/json", ...init.headers } });
-  if (!r.ok) throw new Error(await r.text());
-  return r.status === 204 ? null : r.json();
+  const t = await r.text();
+  if (!r.ok) throw new Error(t);
+  return t ? JSON.parse(t) : null;
 };
 // Jumlah soal per bagian. Bagian tanpa soal terverifikasi dilewati.
 export const QUOTA = { kosakata: 18, percakapan: 16, bacaan: 16, mendengarkan: 10 };
